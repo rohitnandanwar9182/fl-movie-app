@@ -1,69 +1,142 @@
+"use client";
+import HeroSection from "./components/HeroSection";
+import { useEffect, useState } from "react";
+import { API_URL, IMAGE_PATH } from "@/constants";
 import Image from "next/image";
+import { Star } from "lucide-react";
 
 export default function Home() {
+  const [movies, setMovies] = useState<IMovie[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const fetchMovies = async (query = "") => {
+    const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY?.trim();
+
+    if (!apiKey || apiKey.includes("YOUR_")) {
+      setMovies([]);
+      return;
+    }
+
+    try {
+      const endpoint = query
+        ? `${API_URL}/search/movie`
+        : `${API_URL}/discover/movie`;
+
+      const url = new URL(endpoint);
+      url.searchParams.set("include_adult", "false");
+      url.searchParams.set("language", "en-US");
+      url.searchParams.set("page", "1");
+      url.searchParams.set("api_key", apiKey);
+
+      if (query) {
+        url.searchParams.set("query", query);
+      }
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`TMDB request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMovies(data.results || []);
+    } catch (error) {
+      console.log("TMDB fetch error:", error);
+      setMovies([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchMovies(searchTerm);
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <HeroSection
+        movies={movies.slice(0, 5)}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
+      <div className="flex flex-col m-10 mt-0">
+        <div className="mb-10">
+          <h2 className="text-3xl font-bold text-alabaster mb-3">
+           {searchTerm ?`Results  for ${searchTerm}`: "Popular Right Now"} 
+          </h2>
+          <p className="text-lg text-santas-gray">
+            Explore what everyone is watching
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {movies.length === 0 ? (
+        <div className="px-10 pb-10 text-santas-gray">
+          {searchTerm.trim()
+            ? "search a proper movie title"
+            : "Add a valid TMDB API key in" + " " + "\u200b"}
+          {searchTerm.trim() ? null : (
+            <span className="font-semibold">.env</span>
+          )}
+          {searchTerm.trim() ? null : " to show real posters."}
         </div>
-      </main>
-    </div>
+      ) : (
+        <div className="grid grid-cols-5 gap-6 px-10 pb-10">
+          {movies.map((movie) => (
+            <div
+              key={movie.id}
+              className="group relative overflow-hidden rounded-xl shadow-lg"
+            >
+              <div className="relative overflow-hidden rounded-xl">
+                <Image
+                  className="h-85 w-full object-cover transition duration-500 group-hover:scale-110"
+                  src={
+                    movie.poster_path
+                      ? `${IMAGE_PATH}${movie.poster_path}`
+                      : "/placeholder-image.webp"
+                  }
+                  width={250}
+                  height={340}
+                  alt={movie.title}
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-xl bg-black/70 px-2.5 py-1">
+                  <Star className="h-3.5 w-3.5 text-saffron fill-saffron" />
+                  <span className="text-sm font-semibold text-white">
+                    {movie.vote_average?.toFixed(1)}
+                  </span>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-3 text-white opacity-0 transition duration-300 group-hover:opacity-100">
+                  <p className=" line-clamp-4 text-sm text-white/90 text-center">
+                    {movie.overview}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 p-1">
+                <h3 className="font-semibold transition-colors group-hover:text-red-500">
+                  {movie.title || "Untitled"}
+                </h3>
+                <p className="text-sm text-santas-gray">
+                  {movie.release_date
+                    ? movie.release_date.split("-")[0]
+                    : "N/A"}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
