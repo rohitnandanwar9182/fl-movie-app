@@ -70,19 +70,19 @@ export default function Home() {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
-      <div className="flex flex-col m-10 mt-0">
-        <div className="mb-10">
-          <h2 className="text-3xl font-bold text-alabaster mb-3">
-           {searchTerm ?`Results  for ${searchTerm}`: "Popular Right Now"} 
+      <div className="mt-6 flex flex-col m-4 sm:m-6 lg:m-10">
+        <div className="mb-6 sm:mb-8 lg:mb-10">
+          <h2 className="mb-2 text-2xl font-bold text-alabaster sm:text-3xl">
+            {searchTerm ? `Results for ${searchTerm}` : "Popular Right Now"}
           </h2>
-          <p className="text-lg text-santas-gray">
+          <p className="text-sm text-santas-gray sm:text-lg">
             Explore what everyone is watching
           </p>
         </div>
       </div>
 
       {movies.length === 0 ? (
-        <div className="px-10 pb-10 text-santas-gray">
+        <div className="px-4 pb-10 text-santas-gray sm:px-6 lg:px-10">
           {searchTerm.trim()
             ? "search a proper movie title"
             : "Add a valid TMDB API key in" + " " + "\u200b"}
@@ -92,15 +92,15 @@ export default function Home() {
           {searchTerm.trim() ? null : " to show real posters."}
         </div>
       ) : (
-        <div className="grid grid-cols-5 gap-6 px-10 pb-10">
+        <div className="grid grid-cols-1 gap-4 px-4 pb-10 sm:grid-cols-2 sm:gap-5 sm:px-6 md:grid-cols-3 lg:grid-cols-4 lg:px-10 xl:grid-cols-5">
           {movies.map((movie) => (
             <div
               key={movie.id}
-              className="group relative overflow-hidden rounded-xl shadow-lg"
+              className="group relative flex h-full flex-col overflow-hidden rounded-xl shadow-lg"
             >
               <div className="relative overflow-hidden rounded-xl">
                 <Image
-                  className="h-85 w-full object-cover transition duration-500 group-hover:scale-110"
+                  className="h-[260px] w-full object-cover transition duration-500 group-hover:scale-110 sm:h-[310px] lg:h-[340px]"
                   src={
                     movie.poster_path
                       ? `${IMAGE_PATH}${movie.poster_path}`
@@ -109,6 +109,7 @@ export default function Home() {
                   width={250}
                   height={340}
                   alt={movie.title}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
                 <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-xl bg-black/70 px-2.5 py-1">

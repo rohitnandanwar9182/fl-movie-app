@@ -13,33 +13,8 @@ interface IHeroSectionProps {
 
 const HeroSection = ({ movies, searchTerm, setSearchTerm }: IHeroSectionProps) => {
   return (
-    <header className="relative h-[70vh]">
-      <div className="w-5/12 z-10 absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
-        <div className="flex items-center justify-center flex-col mb-4 gap-4">
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-red-500 shadow-lg mb-4">
-            <Popcorn className="h-7 w-7" />
-          </div>
-
-          <h1 className="text-7xl font-black tracking-tight ">Moviebox</h1>
-
-          <p className="text-2xl tracking-tight font-light text-santas-gray mb-4 ">
-            Discover the most popular trending movies right now
-          </p>
-        </div>
-
-        <div className="relative h-12 ">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-santas-gray" />
-          <input
-            className="mb-10 w-full h-full rounded-xl pl-10 pr-10 
-            outline-none border-none bg-dark-black "
-            placeholder="Search Movies"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-5 gap-1 opacity-60 absolute inset-0">
+    <header className="relative h-[60vh] min-h-[420px] overflow-hidden sm:h-[68vh] lg:h-[70vh]">
+      <div className="absolute inset-0 grid grid-cols-2 gap-1 opacity-60 sm:grid-cols-3 lg:grid-cols-5">
         {movies.length >= 5  ? 
           movies.map((movie)=>
           <div key={movie.id}>
@@ -81,6 +56,34 @@ const HeroSection = ({ movies, searchTerm, setSearchTerm }: IHeroSectionProps) =
         className="absolute inset-0 bg-linear-to-t from-woodsmoke/90
  via-transparent to-woodsmoke/90"
       ></div>
+
+      <div className="relative z-10 flex h-full items-center justify-center px-4 sm:px-6">
+        <div className="w-full max-w-xl">
+          <div className="mb-4 flex flex-col items-center justify-center gap-3 sm:gap-4">
+            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500 shadow-lg sm:mb-4 sm:h-14 sm:w-14">
+              <Popcorn className="h-6 w-6 sm:h-7 sm:w-7" />
+            </div>
+
+            <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-7xl">
+              Moviebox
+            </h1>
+
+            <p className="mb-2 text-center text-base tracking-tight font-light text-santas-gray sm:text-xl lg:text-2xl">
+              Discover the most popular trending movies right now
+            </p>
+          </div>
+
+          <div className="relative h-11 sm:h-12">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-santas-gray" />
+            <input
+              className="h-full w-full rounded-xl border-none bg-dark-black pl-10 pr-10 text-sm outline-none sm:text-base"
+              placeholder="Search Movies"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
     </header>
   );
 };
